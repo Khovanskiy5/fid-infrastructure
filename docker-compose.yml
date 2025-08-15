@@ -636,6 +636,29 @@ services:
       retries: 12
       start_period: 40s
 
+  metricbeat:
+    image: docker.elastic.co/beats/metricbeat:7.17.0
+    container_name: infra_metricbeat
+    <<: *service_defaults
+    depends_on:
+      kibana:
+        condition: service_healthy
+      es01:
+        condition: service_healthy
+      es02:
+        condition: service_healthy
+      es03:
+        condition: service_healthy
+    volumes:
+      - ./services/metricbeat/metricbeat.yml:/usr/share/metricbeat/metricbeat.yml:ro
+    command: ["-e", "-c", "/usr/share/metricbeat/metricbeat.yml"]
+    healthcheck:
+      test: ["CMD-SHELL", "metricbeat test output -c /usr/share/metricbeat/metricbeat.yml | grep -qi 'connection to' || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
   # MinIO (S3 api)
   minio:
     image: minio/minio:RELEASE.2023-01-25T00-19-54Z

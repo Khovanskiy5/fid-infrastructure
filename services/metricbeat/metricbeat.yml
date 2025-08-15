@@ -1,0 +1,29 @@
+# Metricbeat configuration for Stack Monitoring (Elasticsearch + Kibana)
+
+metricbeat.modules:
+  - module: elasticsearch
+    xpack.enabled: true
+    period: 10s
+    # You can specify multiple nodes; Metricbeat will balance between them
+    hosts: ["http://es01:9200", "http://es02:9200", "http://es03:9200"]
+
+  - module: kibana
+    xpack.enabled: true
+    period: 10s
+    hosts: ["http://kibana:5601"]
+
+# Output to Elasticsearch (no auth/SSL as per current stack settings)
+output.elasticsearch:
+  hosts: ["http://es01:9200", "http://es02:9200", "http://es03:9200"]
+
+# Optional: let Metricbeat talk to Kibana for dashboards/setup
+setup.kibana:
+  host: "http://kibana:5601"
+
+processors:
+  - add_host_metadata: ~
+  - add_cloud_metadata: ~
+
+# Log to stdout (Docker best practice)
+logging.to_files: false
+logging.level: info
