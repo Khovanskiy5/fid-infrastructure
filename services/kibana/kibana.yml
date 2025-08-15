@@ -1,0 +1,11 @@
+server.name: "kibana"
+server.host: "0.0.0.0"
+
+# Подключение к кластеру Elasticsearch (без безопасности/TLS)
+elasticsearch.hosts:
+  - "http://es01:9200"
+  - "http://es02:9200"
+  - "http://es03:9200"
+
+# Уровень логирования (stdout по умолчанию)
+logging.root.level: error

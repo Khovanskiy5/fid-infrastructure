@@ -1,0 +1,74 @@
+# Infrastructure .gitignore
+# Purpose: keep repo clean from logs, certificates, and temporary artifacts
+
+############################
+# Logs
+############################
+logs/
+*.log
+*.log.*
+
+############################
+# Certificates and keys (anywhere)
+############################
+*.key
+*.crt
+*.cer
+*.pem
+*.p12
+*.pfx
+*.der
+*.csr
+*.srl
+
+# Service certificate folders (keep optional README/.gitkeep)
+services/**/certs/*
+!services/**/certs/.gitkeep
+!services/**/certs/README*
+!services/**/certs/readme*
+
+############################
+# Temporary and cache dirs
+############################
+.tmp/
+tmp/
+temp/
+.cache/
+cache/
+*.tmp
+
+############################
+# Environment files
+############################
+.env
+.env.*
+!.env.example
+
+############################
+# OS / Editor / IDE noise
+############################
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+*.swp
+*.swo
+*~
+.idea/
+*.iml
+.vscode/
+*.code-workspace
+
+############################
+# Common build artefacts
+############################
+dist/
+build/
+out/
+coverage/
+node_modules/
+
+############################
+# Docker Compose local overrides
+############################
+docker-compose.override.yml

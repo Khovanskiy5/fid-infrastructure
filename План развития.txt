@@ -1,0 +1,18 @@
+### PHP-FPM и SWOOLE привести к продовым
+  - Добавить производственные опции (php.ini):
+    - opcache.enable=1, opcache.validate_timestamps=0 (в PROD), память 128–256M, и прочую хрень
+  - Расширения: для Laravel/Symfony/Yii2 обычно ещё нужен pdo_pgsql, pcntl (для очередей), sockets (по необходимости),  gd/imagick
+  - Запуск воркеров очередей: отдельный сервис queue-worker на базе того же php-fpm образа, под supervisor
+  - Планировщик: отдельный сервис scheduler, запускающий cron задачи.
+
+- Mock сервис для удобства
+  - WireMock/MockServer для внешних API
+
+- Документация API
+  - Swagger UI
+
+- BI/метрики
+  - Metabase — дашборды по Postgres/ClickHouse.
+  - Grafana
+  - Prometheus
+  - Logstash

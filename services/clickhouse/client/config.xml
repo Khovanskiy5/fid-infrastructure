@@ -1,0 +1,41 @@
+<!-- Конфигурация клиента ClickHouse (размещается в /etc/clickhouse-client/). Используется, если другие конфиги не найдены. -->
+<config>
+
+    <!--
+        Настройка приглашения (prompt) для clickhouse-client
+        Возможные макросы:
+            {host}
+            {port}
+            {user}
+            {database}
+            {display_name}
+        Цвета терминала: https://misc.flogisoft.com/bash/tip_colors_and_formatting
+        Также см.: https://wiki.hackzine.org/development/misc/readline-color-prompt.html
+    -->
+    <prompt_by_server_display_name>
+        <default>{display_name} :) </default>
+        <test>{display_name} \x01\e[1;32m\x02:)\x01\e[0m\x02 </test> <!-- если имя сервера содержит подстроку "test" -->
+        <production>{display_name} \x01\e[1;31m\x02:)\x01\e[0m\x02 </production> <!-- если имя сервера содержит подстроку "production" -->
+    </prompt_by_server_display_name>
+
+    <!--
+        Параметры, настраиваемые через командную строку,
+        могут брать значения по умолчанию из этого файла, примеры:
+
+    <host>127.0.0.1</host>
+    <port>9440</port>
+    <secure>1</secure>
+    <user>dbuser</user>
+    <password>dbpwd123</password>
+    <format>PrettyCompactMonoBlock</format>
+    <multiline>1</multiline>
+    <multiquery>1</multiquery>
+    <stacktrace>1</stacktrace>
+    <database>default2</database>
+    <pager>less -SR</pager>
+    <history_file>/home/user/clickhouse_custom_history.log</history_file>
+    <max_parser_depth>2500</max_parser_depth>
+
+        То же можно сделать на уровне пользователя: создайте и настройте ~/.clickhouse-client/config.xml
+    -->
+</config>

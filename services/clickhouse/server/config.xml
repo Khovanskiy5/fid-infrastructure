@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<clickhouse>
+    <access_control remove="1"/>
+    <users_config replace="true">users.xml</users_config>
+    <logger replace="true">
+        <level>error</level>
+        <log>/var/log/clickhouse-server/clickhouse-server.log</log>
+        <errorlog>/var/log/clickhouse-server/clickhouse-server.err.log</errorlog>
+    </logger>
+
+    <http_port>8123</http_port>
+    <tcp_port>9000</tcp_port>
+    <interserver_http_port>9009</interserver_http_port>
+    <default_profile replace="true">default</default_profile>
+    <listen_try>1</listen_try>
+    <listen_host replace="true">0.0.0.0</listen_host>
+
+    <zookeeper replace="true">
+        <node><host>clickhouse-zookeeper</host><port>2181</port></node>
+        <node><host>clickhouse-zookeeper-2</host><port>2181</port></node>
+        <node><host>clickhouse-zookeeper-3</host><port>2181</port></node>
+    </zookeeper>
+
+    <remote_servers replace="true">
+        <analytics_cluster>
+            <shard>
+                <internal_replication>true</internal_replication>
+                <replica>
+                    <host>clickhouse-1</host>
+                    <port>9000</port>
+                </replica>
+            </shard>
+            <shard>
+                <replica>
+                    <host>clickhouse-2</host>
+                    <port>9000</port>
+                </replica>
+            </shard>
+        </analytics_cluster>
+    </remote_servers>
+
+</clickhouse>

@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<clickhouse>
+    <profiles replace="true">
+        <default/>
+    </profiles>
+
+    <users replace="true">
+        <default>
+            <password></password>
+            <networks>
+                <ip>127.0.0.1</ip>
+                <ip>0.0.0.0/0</ip>
+            </networks>
+            <access_management>1</access_management>
+            <named_collection_control>1</named_collection_control>
+            <show_named_collections>1</show_named_collections>
+            <show_named_collections_secrets>1</show_named_collections_secrets>
+            <profile>default</profile>
+            <quota>default</quota>
+        </default>
+
+        <admin>
+            <password>123</password>
+            <networks>
+                <ip>127.0.0.1</ip>
+                <ip>0.0.0.0/0</ip>
+            </networks>
+            <profile>default</profile>
+            <quota>default</quota>
+            <access_management>1</access_management>
+            <named_collection_control>1</named_collection_control>
+            <show_named_collections>1</show_named_collections>
+            <show_named_collections_secrets>1</show_named_collections_secrets>
+        </admin>
+    </users>
+
+    <quotas replace="true">
+        <default>
+            <interval>
+                <duration>3600</duration>
+                <queries>0</queries>
+                <errors>0</errors>
+                <result_rows>0</result_rows>
+                <read_rows>0</read_rows>
+                <execution_time>0</execution_time>
+            </interval>
+        </default>
+    </quotas>
+</clickhouse>

@@ -1,0 +1,95 @@
+/var/log/infra/*.log {
+  daily
+  rotate 7
+  missingok
+  notifempty
+  copytruncate
+}
+
+/var/log/infra/nginx/*.log {
+  daily
+  rotate 7
+  missingok
+  notifempty
+  copytruncate
+}
+
+/var/log/infra/php/*.log {
+  daily
+  rotate 7
+  missingok
+  notifempty
+  copytruncate
+}
+
+/var/log/infra/postgres/*/*.log {
+  daily
+  rotate 7
+  missingok
+  notifempty
+  copytruncate
+}
+
+/var/log/infra/redis/*/*.log {
+  daily
+  rotate 7
+  missingok
+  notifempty
+  copytruncate
+}
+
+/var/log/infra/rabbitmq/*/*.log {
+  daily
+  rotate 7
+  missingok
+  notifempty
+  copytruncate
+}
+
+/var/log/infra/haproxy/*.log {
+  daily
+  rotate 7
+  missingok
+  notifempty
+  copytruncate
+}
+
+/var/log/infra/elasticsearch/*/*.log {
+  daily
+  rotate 7
+  missingok
+  notifempty
+  copytruncate
+}
+
+/var/log/infra/minio/*.log {
+  daily
+  rotate 7
+  missingok
+  notifempty
+  copytruncate
+}
+
+/var/log/infra/clickhouse/*/*.log {
+  daily
+  rotate 7
+  missingok
+  notifempty
+  copytruncate
+}
+
+/var/log/infra/centrifugo/*.log {
+  daily
+  rotate 7
+  missingok
+  notifempty
+  copytruncate
+}
+
+/var/log/infra/mailhog/*.log {
+  daily
+  rotate 7
+  missingok
+  notifempty
+  copytruncate
+}
