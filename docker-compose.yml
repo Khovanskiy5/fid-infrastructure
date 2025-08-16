@@ -653,7 +653,7 @@ services:
       - ./services/metricbeat/metricbeat.yml:/usr/share/metricbeat/metricbeat.yml:ro
     command: ["-e", "-c", "/usr/share/metricbeat/metricbeat.yml"]
     healthcheck:
-      test: ["CMD-SHELL", "metricbeat test output -c /usr/share/metricbeat/metricbeat.yml | grep -qi 'connection to' || exit 1"]
+      test: ["CMD-SHELL", "metricbeat test output -c /usr/share/metricbeat/metricbeat.yml >/dev/null 2>&1 || exit 1"]
       interval: 15s
       timeout: 5s
       retries: 5
