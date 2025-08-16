@@ -64,7 +64,7 @@ services:
 
   # PostgreSQL кластер + PGBouncer + Haproxy
   postgres-master:
-    image: bitnami/postgresql-repmgr:16
+    image: bitnami/postgresql-repmgr:15.10.0
     container_name: infra_pg_master
     <<: *service_defaults
     environment:
@@ -96,7 +96,7 @@ services:
       start_period: 30s
 
   postgres-replica:
-    image: bitnami/postgresql-repmgr:16
+    image: bitnami/postgresql-repmgr:15.10.0
     container_name: infra_pg_replica
     <<: *service_defaults
     depends_on:
