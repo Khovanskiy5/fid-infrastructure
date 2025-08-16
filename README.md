@@ -48,7 +48,7 @@ make status
 ```
 4) Откройте:
 - Nginx (тест): https://localhost/healthz (самоподписанный сертификат)
-- MailHog UI: http://localhost:8025 или https://localhost/mailhog/
+- MailHog UI: http://localhost:8025 или http://localhost/mailhog/
 - RabbitMQ UI: http://localhost:15672 (admin/adminpass)
 - Kibana: http://localhost:5601
 - MinIO Console: https://localhost:9001 (minioadmin/minioadminpass)
@@ -101,7 +101,7 @@ make status
 - PostgreSQL: 5432
 - PgBouncer/HAProxy (PostgreSQL): 6432
 - Redis: 6379 (Sentinel: 26379, 26380, 26381)
-- MailHog UI: 8025 (также через https://localhost/mailhog/)
+- MailHog UI: 8025 (также через http://localhost/mailhog/)
 - ClickHouse: 8123 (HTTP), 9004 (TCP/native)
 - RabbitMQ через HAProxy: 5672 (AMQP), 15672 (UI)
 - Elasticsearch: 9200 (HTTP)
@@ -283,7 +283,7 @@ Native: jdbc:ch://127.0.0.1:9004/default?protocol=native&ssl=false&user=admin&pa
 - Проверка: `curl -k https://localhost/healthz`
 
 ### MailHog
-- UI: http://localhost:8025 (также https://localhost/mailhog/ через Nginx)
+- UI: http://localhost:8025 (также http://localhost/mailhog/ через Nginx)
 
 
 ## Устранение неполадок
