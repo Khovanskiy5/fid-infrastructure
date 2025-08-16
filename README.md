@@ -19,7 +19,7 @@
 - [Инструкция по подключениям (детально по сервисам)](#инструкция-по-подключениям-детально-по-сервисам)
 - [Устранение неполадок](#устранение-неполадок)
 - [Приложение A: Elasticsearch + Hunspell тесты](https://github.com/Khovanskiy5/fid-infrastructure/blob/main/README_Elasticsearch.md)
-- [Приложение Б: Мониторинг Elasticsearch](https://github.com/Khovanskiy5/fid-infrastructure/blob/main/README_metricbeat.md.md)
+- [Приложение Б: Мониторинг Elasticsearch](https://github.com/Khovanskiy5/fid-infrastructure/blob/main/README_metricbeat.md)
 
 
 ## Требования
