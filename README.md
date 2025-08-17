@@ -100,8 +100,8 @@ make status
 
 ## Сервисы и порты
 - Nginx: 80 (HTTP), 443 (HTTPS)
-- PostgreSQL: 5432
-- PgBouncer/HAProxy (PostgreSQL): 6432
+- PostgreSQL (HAProxy→PGBouncer→PostgreSQL): 6432
+- PostgreSQL (master): 5432
 - Redis: 6379 (Sentinel: 26379, 26380, 26381)
 - MailHog UI: 8025 (также через http://localhost/mailhog/)
 - ClickHouse: 8123 (HTTP), 9004 (TCP/native)
@@ -229,9 +229,9 @@ services:
 
 ## Инструкция по подключениям (детально по сервисам)
 
-### PgBouncer + HAProxy (PostgreSQL)
+### PostgreSQL (HAProxy + PgBouncer)
 - Снаружи: localhost:6432 (HAProxy → PgBouncer → PostgreSQL)
-- Внутри Docker: haproxy:6432 или pgbouncer:6432
+- Внутри Docker: haproxy:6432
 - Переменные: POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB (из .env)
 - Примеры:
 ```
@@ -239,7 +239,7 @@ psql -h localhost -p 6432 -U postgres -d postgres -c 'select now();'
 # DSN: postgres://postgres:${POSTGRES_PASSWORD}@localhost:6432/postgres
 ```
 
-### PostgreSQL (Bitnami repmgr)
+### PostgreSQL (master)
 - Снаружи: localhost:5432
 - Внутри: postgres-master:5432 (реплика: postgres-replica:5432)
 - Примеры:
@@ -259,7 +259,7 @@ psql -h postgres-master -U postgres -d postgres
 
 ### ClickHouse (2 ноды + Keeper)
 - HTTP: localhost:8123; TCP(native): localhost:9004 → контейнерный 9000
-- Пользователи: default (без пароля), admin/123
+- Пользователь: admin/123
 - JDBC URL (современный драйвер com.clickhouse):
 ```
 HTTP:  jdbc:ch://127.0.0.1:8123/default?ssl=false&user=admin&password=123
