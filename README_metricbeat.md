@@ -12,4 +12,4 @@ docker compose up -d metricbeat
 
 Детали:
 - Конфиг: services/metricbeat/metricbeat.yml (включены модули elasticsearch и kibana с xpack.enabled: true)
-- Подключение: http://es01:9200, http://es02:9200, http://es03:9200 и http://kibana:5601
+- Подключение: http://elasticsearch-1:9200, http://elasticsearch-2:9200, http://elasticsearch-3:9200 и http://kibana:5601

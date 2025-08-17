@@ -1,4 +1,4 @@
-FROM php:8.2-fpm-alpine
+FROM php:7.4-fpm-alpine
 
 RUN set -eux; \
     apk add --no-cache bash curl tzdata; \

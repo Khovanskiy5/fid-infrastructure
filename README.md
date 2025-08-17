@@ -111,7 +111,7 @@ make status
 - MinIO: 9000 (S3 API), 9001 (Console)
 - Centrifugo: 8000 (WS/API)
 
-DNS‑имена внутри сети Docker (bridge): postgres-master, postgres-replica, pgbouncer, haproxy, redis-master, redis-slave, redis-sentinel-1..3, rabbit-haproxy, rabbit-1..3, clickhouse-1/2, es01..es03, kibana, minio, centrifugo, php-fpm, nginx и др.
+DNS‑имена внутри сети Docker (bridge): postgres-master, postgres-replica, pgbouncer, haproxy, redis-master, redis-slave, sentinel-1..3, rabbit-1..3, clickhouse-1/2, elasticsearch-1..3, kibana, minio, centrifugo, php-fpm, nginx и др.
 
 
 ## Структура проекта
@@ -154,27 +154,27 @@ DNS‑имена внутри сети Docker (bridge): postgres-master, postgre
 Общие примеры:
 - Nginx/PHP: `curl -k https://localhost/healthz`
 - PHP-FPM: смотрите ./logs/php и откройте `src/public/index.php`
-- Node.js: `docker exec -it infra_nodejs node -v`
+- Node.js: `docker exec -it nodejs node -v`
 
 PostgreSQL:
 ```
 psql -h localhost -U postgres -d postgres -c 'select now();'
 psql -h localhost -p 6432 -U postgres -d postgres -c 'select now();'  # через PgBouncer/HAProxy
-docker exec -it infra_pg_master psql -U postgres -c 'select * from pg_stat_replication;'
+docker exec -it postgres-master psql -U postgres -c 'select * from pg_stat_replication;'
 ```
 
 Redis:
 ```
 redis-cli -h 127.0.0.1 -p 6379 ping
 # Sentinel (внутри сети Docker):
-docker exec -it infra_redis_sentinel-1 redis-cli -p 26379 info | head -n 20
+docker exec -it sentinel-1 redis-cli -p 26379 info | head -n 20
 ```
 
 ClickHouse:
 ```
 curl 'http://localhost:8123/?query=SELECT%201'
 clickhouse-client --host 127.0.0.1 --port 9004 --query "select 1"
-docker exec -it infra_clickhouse_1 clickhouse-client --query "select 1"
+docker exec -it clickhouse-1 clickhouse-client --query "select 1"
 ```
 
 RabbitMQ:
@@ -250,7 +250,7 @@ psql -h postgres-master -U postgres -d postgres
 
 ### Redis (master/slave + 3 Sentinel)
 - Redis: localhost:6379 (внутри: redis-master:6379; slave: redis-slave:6379)
-- Sentinel: 26379, 26380, 26381 (внутри: redis-sentinel-1..3:26379)
+- Sentinel: 26379, 26380, 26381 (внутри: sentinel-1..3:26379)
 
 ### RabbitMQ (3 ноды) + HAProxy
 - AMQP: localhost:5672 (внутри: haproxy:5672)
@@ -267,7 +267,7 @@ Native: jdbc:ch://127.0.0.1:9004/default?protocol=native&ssl=false&user=admin&pa
 ```
 
 ### Elasticsearch (3 ноды) + Kibana
-- Elasticsearch: http://localhost:9200 (внутри: es01:9200, es02:9200, es03:9200)
+- Elasticsearch: http://localhost:9200 (внутри: elasticsearch-1:9200, elasticsearch-2:9200, elasticsearch-3:9200)
 - Kibana: http://localhost:5601
 - Hunspell словари: services/elasticsearch/hunspell/ru_RU → /usr/share/elasticsearch/config/hunspell/ru_RU
 

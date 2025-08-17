@@ -86,6 +86,22 @@
   copytruncate
 }
 
+/var/log/infra/kibana/*.log {
+  daily
+  rotate 7
+  missingok
+  notifempty
+  copytruncate
+}
+
+/var/log/infra/metricbeat/*.log {
+  daily
+  rotate 7
+  missingok
+  notifempty
+  copytruncate
+}
+
 /var/log/infra/mailhog/*.log {
   daily
   rotate 7

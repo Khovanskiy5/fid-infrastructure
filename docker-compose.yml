@@ -7,7 +7,8 @@ services:
   # Прокси с TLS
   nginx:
     image: nginx:1.23.1-alpine
-    container_name: infra_nginx
+    container_name: nginx
+    hostname: nginx
     <<: *service_defaults
     depends_on:
       php-fpm:
@@ -34,7 +35,8 @@ services:
       context: ./services/php/fpm
       dockerfile: Dockerfile
     image: local/php-fpm:alpine
-    container_name: infra_php_fpm
+    container_name: php-fpm
+    hostname: php-fpm
     <<: *service_defaults
     environment:
       - PHP_MEMORY_LIMIT=512M
@@ -49,7 +51,8 @@ services:
       context: ./services/nodejs
       dockerfile: Dockerfile
     image: local/node:alpine
-    container_name: infra_nodejs
+    container_name: nodejs
+    hostname: nodejs
     <<: *service_defaults
     command: ["node", "-e", "const http=require('http');const port=parseInt(process.env.HEALTH_PORT||'3000',10);http.createServer((req,res)=>{if(req.url==='/health'){res.writeHead(200,{'Content-Type':'text/plain'});return res.end('OK');}res.statusCode=404;res.end('Not Found');}).listen(port,()=>console.log('Health server on',port));process.on('SIGTERM',()=>process.exit(0));"]
     healthcheck:
@@ -65,7 +68,8 @@ services:
   # PostgreSQL кластер + PGBouncer + Haproxy
   postgres-master:
     image: bitnami/postgresql-repmgr:15.10.0
-    container_name: infra_pg_master
+    container_name: postgres-master
+    hostname: postgres-master
     <<: *service_defaults
     environment:
       - REPMGR_PASSWORD=${POSTGRES_REPMGR_PASSWORD}
@@ -97,7 +101,8 @@ services:
 
   postgres-replica:
     image: bitnami/postgresql-repmgr:15.10.0
-    container_name: infra_pg_replica
+    container_name: postgres-replica
+    hostname: postgres-replica
     <<: *service_defaults
     depends_on:
       - postgres-master
@@ -124,7 +129,8 @@ services:
 
   pgbouncer:
     image: bitnami/pgbouncer:1.24.0
-    container_name: infra_pgbouncer
+    container_name: pgbouncer
+    hostname: pgbouncer
     <<: *service_defaults
     environment:
       - POSTGRESQL_HOST=postgres-master
@@ -151,7 +157,8 @@ services:
 
   # Redis master/slave + Sentinel кластер
   redis-master:
-    container_name: infra_redis_1
+    container_name: redis-master
+    hostname: redis-master
     <<: *service_defaults
     image: bitnami/redis:6.2.6
     environment:
@@ -170,7 +177,8 @@ services:
       start_period: 5s
 
   redis-slave:
-    container_name: infra_redis_slave_1
+    container_name: redis-slave
+    hostname: redis-slave
     <<: *service_defaults
     image: bitnami/redis:6.2.6
     environment:
@@ -192,8 +200,9 @@ services:
       retries: 5
       start_period: 12s
 
-  redis-sentinel-1:
-    container_name: infra_redis_sentinel-1
+  sentinel-1:
+    container_name: sentinel-1
+    hostname: sentinel-1
     <<: *service_defaults
     image: bitnami/redis-sentinel:6.2.6
     depends_on:
@@ -218,8 +227,9 @@ services:
       retries: 5
       start_period: 5s
 
-  redis-sentinel-2:
-    container_name: infra_redis_sentinel_2
+  sentinel-2:
+    container_name: sentinel-2
+    hostname: sentinel-2
     <<: *service_defaults
     image: bitnami/redis-sentinel:6.2.6
     depends_on:
@@ -242,8 +252,9 @@ services:
       retries: 5
       start_period: 5s
 
-  redis-sentinel-3:
-    container_name: infra_redis_sentinel_3
+  sentinel-3:
+    container_name: sentinel-3
+    hostname: sentinel-3
     <<: *service_defaults
     image: bitnami/redis-sentinel:6.2.6
     depends_on:
@@ -271,7 +282,8 @@ services:
   # Почтовый сервер
   mailhog:
     image: mailhog/mailhog:latest
-    container_name: infra_mailhog
+    container_name: mailhog
+    hostname: mailhog
     <<: *service_defaults
     ports:
       - "${MAILHOG_HTTP_PORT:-8025}:8025"
@@ -286,9 +298,10 @@ services:
       start_period: 3s
 
   # ClickHouse cluster (2 ноды) + zookeeper
-  clickhouse-zookeeper:
+  zookeeper-1:
     image: zookeeper:3.7.1
-    container_name: infra_clickhouse_zookeeper
+    container_name: zookeeper-1
+    hostname: zookeeper-1
     <<: *service_defaults
     environment:
       - ZOO_CLIENT_PORT=2181
@@ -309,9 +322,10 @@ services:
       retries: 10
       start_period: 10s
 
-  clickhouse-zookeeper-2:
+  zookeeper-2:
     image: zookeeper:3.7.1
-    container_name: infra_clickhouse_zookeeper_2
+    container_name: zookeeper-2
+    hostname: zookeeper-2
     <<: *service_defaults
     environment:
       - ZOO_CLIENT_PORT=2181
@@ -332,9 +346,10 @@ services:
       retries: 10
       start_period: 10s
 
-  clickhouse-zookeeper-3:
+  zookeeper-3:
     image: zookeeper:3.7.1
-    container_name: infra_clickhouse_zookeeper_3
+    container_name: zookeeper-3
+    hostname: zookeeper-3
     <<: *service_defaults
     environment:
       - ZOO_CLIENT_PORT=2181
@@ -357,15 +372,15 @@ services:
 
   clickhouse-1:
     image: clickhouse/clickhouse-server:22.8.11.15-alpine
-    container_name: infra_clickhouse_1
+    container_name: clickhouse-1
     hostname: clickhouse-1
     <<: *service_defaults
     depends_on:
-      clickhouse-zookeeper:
+      zookeeper-1:
         condition: service_healthy
-      clickhouse-zookeeper-2:
+      zookeeper-2:
         condition: service_healthy
-      clickhouse-zookeeper-3:
+      zookeeper-3:
         condition: service_healthy
     environment:
       - SHARD=1
@@ -393,15 +408,15 @@ services:
 
   clickhouse-2:
     image: clickhouse/clickhouse-server:22.8.11.15-alpine
-    container_name: infra_clickhouse_2
+    container_name: clickhouse-2
     hostname: clickhouse-2
     <<: *service_defaults
     depends_on:
-      clickhouse-zookeeper:
+      zookeeper-1:
         condition: service_healthy
-      clickhouse-zookeeper-2:
+      zookeeper-2:
         condition: service_healthy
-      clickhouse-zookeeper-3:
+      zookeeper-3:
         condition: service_healthy
     environment:
       - SHARD=1
@@ -425,11 +440,11 @@ services:
       start_period: 30s
 
   # RabbitMQ кластер (3 ноды) + HAProxy
-  rabbit-1:
+  rabbitmq-1:
     image: rabbitmq:3.10.0-management
-    container_name: infra_rabbit_1
+    container_name: rabbitmq-1
+    hostname: rabbitmq-1
     <<: *service_defaults
-    hostname: rabbit-1
     environment:
       - RABBITMQ_COOKIE=${RABBITMQ_COOKIE}
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
@@ -448,13 +463,13 @@ services:
       retries: 12
       start_period: 30s
 
-  rabbit-2:
+  rabbitmq-2:
     image: rabbitmq:3.10.0-management
-    container_name: infra_rabbit_2
+    container_name: rabbitmq-2
+    hostname: rabbitmq-2
     <<: *service_defaults
-    hostname: rabbit-2
     depends_on:
-      rabbit-1:
+      rabbitmq-1:
         condition: service_healthy
     environment:
       - RABBITMQ_COOKIE=${RABBITMQ_COOKIE}
@@ -474,13 +489,13 @@ services:
       retries: 12
       start_period: 50s
 
-  rabbit-3:
+  rabbitmq-3:
     image: rabbitmq:3.10.0-management
-    container_name: infra_rabbit_3
+    container_name: rabbitmq-3
+    hostname: rabbitmq-3
     <<: *service_defaults
-    hostname: rabbit-3
     depends_on:
-      rabbit-1:
+      rabbitmq-1:
         condition: service_healthy
     environment:
       - RABBITMQ_COOKIE=${RABBITMQ_COOKIE}
@@ -503,14 +518,15 @@ services:
   # Haproxy для PgBouncer и RabbitMQ
   haproxy:
     image: haproxy:1.5.18-alpine
-    container_name: infra_haproxy
+    container_name: haproxy
+    hostname: haproxy
     <<: *service_defaults
     depends_on:
-      rabbit-1:
+      rabbitmq-1:
         condition: service_healthy
-      rabbit-2:
+      rabbitmq-2:
         condition: service_healthy
-      rabbit-3:
+      rabbitmq-3:
         condition: service_healthy
       pgbouncer:
         condition: service_started
@@ -530,15 +546,16 @@ services:
       start_period: 15s
 
   # Elasticsearch кластер (3 ноды)
-  es01:
+  elasticsearch-1:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.17.0
-    container_name: infra_es01
+    container_name: elasticsearch-1
+    hostname: elasticsearch-1
     <<: *service_defaults
     environment:
-      - node.name=es01
+      - node.name=elasticsearch-1
       - cluster.name=es-docker-cluster
-      - discovery.seed_hosts=es01,es02,es03
-      - cluster.initial_master_nodes=es01,es02,es03
+      - discovery.seed_hosts=elasticsearch-1,elasticsearch-2,elasticsearch-3
+      - cluster.initial_master_nodes=elasticsearch-1,elasticsearch-2,elasticsearch-3
       - xpack.security.enabled=false
       - xpack.security.http.ssl.enabled=false
       - ES_JAVA_OPTS=-Xms512m -Xmx512m
@@ -561,15 +578,16 @@ services:
       retries: 12
       start_period: 50s
 
-  es02:
+  elasticsearch-2:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.17.0
-    container_name: infra_es02
+    container_name: elasticsearch-2
+    hostname: elasticsearch-2
     <<: *service_defaults
     environment:
-      - node.name=es02
+      - node.name=elasticsearch-2
       - cluster.name=es-docker-cluster
-      - discovery.seed_hosts=es01,es02,es03
-      - cluster.initial_master_nodes=es01,es02,es03
+      - discovery.seed_hosts=elasticsearch-1,elasticsearch-2,elasticsearch-3
+      - cluster.initial_master_nodes=elasticsearch-1,elasticsearch-2,elasticsearch-3
       - xpack.security.enabled=false
       - xpack.security.http.ssl.enabled=false
       - ES_JAVA_OPTS=-Xms512m -Xmx512m
@@ -590,15 +608,16 @@ services:
       retries: 12
       start_period: 50s
 
-  es03:
+  elasticsearch-3:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.17.0
-    container_name: infra_es03
+    container_name: elasticsearch-3
+    hostname: elasticsearch-3
     <<: *service_defaults
     environment:
-      - node.name=es03
+      - node.name=elasticsearch-3
       - cluster.name=es-docker-cluster
-      - discovery.seed_hosts=es01,es02,es03
-      - cluster.initial_master_nodes=es01,es02,es03
+      - discovery.seed_hosts=elasticsearch-1,elasticsearch-2,elasticsearch-3
+      - cluster.initial_master_nodes=elasticsearch-1,elasticsearch-2,elasticsearch-3
       - xpack.security.enabled=false
       - xpack.security.http.ssl.enabled=false
       - ES_JAVA_OPTS=-Xms512m -Xmx512m
@@ -620,19 +639,21 @@ services:
 
   kibana:
     image: docker.elastic.co/kibana/kibana:7.17.0
-    container_name: infra_kibana
+    container_name: kibana
+    hostname: kibana
     <<: *service_defaults
     depends_on:
-      es01:
+      elasticsearch-1:
         condition: service_healthy
-      es02:
+      elasticsearch-2:
         condition: service_healthy
-      es03:
+      elasticsearch-3:
         condition: service_healthy
     environment:
       - NODE_OPTIONS=--max-old-space-size=512
     volumes:
       - ./services/kibana/kibana.yml:/usr/share/kibana/config/kibana.yml:ro
+      - ./logs/kibana:/usr/share/kibana/logs
     ports:
       - "${KIBANA_HTTP_PORT:-5601}:5601"
     healthcheck:
@@ -644,20 +665,22 @@ services:
 
   metricbeat:
     image: docker.elastic.co/beats/metricbeat:7.17.0
-    container_name: infra_metricbeat
+    container_name: metricbeat
+    hostname: metricbeat
     <<: *service_defaults
     depends_on:
       kibana:
         condition: service_healthy
-      es01:
+      elasticsearch-1:
         condition: service_healthy
-      es02:
+      elasticsearch-2:
         condition: service_healthy
-      es03:
+      elasticsearch-3:
         condition: service_healthy
     volumes:
       - ./services/metricbeat/metricbeat.yml:/usr/share/metricbeat/metricbeat.yml:ro
-    command: ["-e", "-c", "/usr/share/metricbeat/metricbeat.yml"]
+      - ./logs/metricbeat:/usr/share/metricbeat/logs
+    command: ["-c", "/usr/share/metricbeat/metricbeat.yml"]
     healthcheck:
       test: ["CMD-SHELL", "metricbeat test output -c /usr/share/metricbeat/metricbeat.yml >/dev/null 2>&1 || exit 1"]
       interval: 15s
@@ -668,7 +691,8 @@ services:
   # MinIO (S3 api)
   minio:
     image: minio/minio:RELEASE.2023-01-25T00-19-54Z
-    container_name: infra_minio
+    container_name: minio
+    hostname: minio
     <<: *service_defaults
     environment:
       - MINIO_ROOT_USER=${MINIO_ROOT_USER}
@@ -693,16 +717,17 @@ services:
   # Centrifugo для сообщений в реал тайм (Веб сокет)
   centrifugo:
     image: centrifugo/centrifugo:v4.1.2
-    container_name: infra_centrifugo
+    container_name: centrifugo
+    hostname: centrifugo
     <<: *service_defaults
     depends_on:
       redis-master:
         condition: service_healthy
-      redis-sentinel-1:
+      sentinel-1:
         condition: service_healthy
-      redis-sentinel-2:
+      sentinel-2:
         condition: service_healthy
-      redis-sentinel-3:
+      sentinel-3:
         condition: service_healthy
     entrypoint: ["/bin/sh", "/usr/local/bin/centrifugo-entrypoint.sh"]
     volumes:
@@ -728,7 +753,8 @@ services:
       context: ./services/logrotate
       dockerfile: Dockerfile
     image: local/logrotate:alpine
-    container_name: infra_logrotate
+    container_name: logrotate
+    hostname: logrotate
     <<: *service_defaults
     volumes:
       - ./services/logrotate/logrotate.conf:/etc/logrotate.conf:ro

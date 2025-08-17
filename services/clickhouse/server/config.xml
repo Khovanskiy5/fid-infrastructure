@@ -16,9 +16,9 @@
     <listen_host replace="true">0.0.0.0</listen_host>
 
     <zookeeper replace="true">
-        <node><host>clickhouse-zookeeper</host><port>2181</port></node>
-        <node><host>clickhouse-zookeeper-2</host><port>2181</port></node>
-        <node><host>clickhouse-zookeeper-3</host><port>2181</port></node>
+        <node><host>zookeeper-1</host><port>2181</port></node>
+        <node><host>zookeeper-2</host><port>2181</port></node>
+        <node><host>zookeeper-3</host><port>2181</port></node>
     </zookeeper>
 
     <remote_servers replace="true">
