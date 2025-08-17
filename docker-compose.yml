@@ -13,8 +13,8 @@ services:
       php-fpm:
         condition: service_started
     ports:
-      - "80:80"
-      - "443:443"
+      - "${NGINX_HTTP_PORT:-80}:80"
+      - "${NGINX_HTTPS_PORT:-443}:443"
     volumes:
       - ./services/nginx/conf/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./services/nginx/conf/conf.d:/etc/nginx/conf.d:ro
@@ -87,7 +87,7 @@ services:
       - pg_master_data:/bitnami/postgresql
       - ./logs/postgres/master:/bitnami/postgresql/logs
     ports:
-      - "5432:5432"
+      - "${POSTGRES_MASTER_PORT:-5432}:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -p 5432 -U $${POSTGRESQL_USERNAME:-postgres} || /opt/bitnami/postgresql/bin/pg_isready -h 127.0.0.1 -p 5432 -U $${POSTGRESQL_USERNAME:-postgres}"]
       interval: 5s
@@ -158,7 +158,7 @@ services:
       - REDIS_REPLICATION_MODE=master
       - ALLOW_EMPTY_PASSWORD=yes
     ports:
-      - '6379:6379'
+      - "${REDIS_MASTER_PORT:-6379}:6379"
     volumes:
       - redis_master_data:/bitnami/redis/data
       - ./logs/redis/master:/opt/bitnami/redis/logs
@@ -206,7 +206,7 @@ services:
       - REDIS_MASTER_HOST=redis-master
       - REDIS_MASTER_PORT_NUMBER=6379
     ports:
-      - '26379:26379'
+      - "${REDIS_SENTINEL1_PORT:-26379}:26379"
     volumes:
       - ./logs/redis/sentinel1:/opt/bitnami/redis-sentinel/logs
     healthcheck:
@@ -228,7 +228,7 @@ services:
       - REDIS_MASTER_HOST=redis-master
       - REDIS_MASTER_PORT_NUMBER=6379
     ports:
-      - '26380:26379'
+      - "${REDIS_SENTINEL2_PORT:-26380}:26379"
     volumes:
       - ./logs/redis/sentinel2:/opt/bitnami/redis-sentinel/logs
     healthcheck:
@@ -252,7 +252,7 @@ services:
       - REDIS_MASTER_HOST=redis-master
       - REDIS_MASTER_PORT_NUMBER=6379
     ports:
-      - '26381:26379'
+      - "${REDIS_SENTINEL3_PORT:-26381}:26379"
     volumes:
       - ./logs/redis/sentinel3:/opt/bitnami/redis-sentinel/logs
     healthcheck:
@@ -268,7 +268,7 @@ services:
     container_name: infra_mailhog
     <<: *service_defaults
     ports:
-      - "8025:8025"
+      - "${MAILHOG_HTTP_PORT:-8025}:8025"
     volumes:
       - ./logs/mailhog:/var/log/mailhog
     entrypoint: ["/bin/sh", "-lc", "exec MailHog >> /var/log/mailhog/mailhog.log 2>&1"]
@@ -376,8 +376,8 @@ services:
       - ./services/clickhouse/server/users.xml:/etc/clickhouse-server/users.xml:ro
       - ./services/clickhouse/server/config.d/docker_related_config.xml:/etc/clickhouse-server/config.d/docker_related_config.xml:ro
     ports:
-      - "8123:8123"  # HTTP
-      - "9004:9000"  # TCP
+      - "${CLICKHOUSE_HTTP_PORT:-8123}:8123"  # HTTP
+      - "${CLICKHOUSE_TCP_HOST_PORT:-9004}:9000"  # TCP
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8123/ping >/dev/null || wget -q -T 2 -O - http://127.0.0.1:8123/ping >/dev/null || bash -lc 'exec 3<>/dev/tcp/127.0.0.1/8123 && printf \"GET /ping HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n\" >&3 && head -n 1 <&3 | grep -q \"200\"'"]
       interval: 5s
@@ -509,9 +509,9 @@ services:
       pgbouncer:
         condition: service_started
     ports:
-      - "5672:5672"   # AMQP
-      - "15672:15672" # HTTP mgmt via HAProxy
-      - "6432:6432"  # PostgreSQL via PgBouncer
+      - "${HAPROXY_AMQP_PORT:-5672}:5672"   # AMQP
+      - "${HAPROXY_MGMT_PORT:-15672}:15672" # HTTP mgmt via HAProxy
+      - "${HAPROXY_PGBOUNCER_PORT:-6432}:6432"  # PostgreSQL via PgBouncer
     volumes:
       - ./services/haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
       - ./logs/haproxy:/var/log/haproxy
@@ -547,7 +547,7 @@ services:
       - ./services/elasticsearch/hunspell/ru_RU:/usr/share/elasticsearch/config/hunspell/ru_RU:ro
       - ./services/elasticsearch/hunspell/ru_RU:/etc/elasticsearch/hunspell/ru_RU:ro
     ports:
-      - "9200:9200"
+      - "${ELASTICSEARCH_HTTP_PORT:-9200}:9200"
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://localhost:9200 >/dev/null || wget -q -T 2 -O - http://localhost:9200 >/dev/null || exit 1"]
       interval: 5s
@@ -628,7 +628,7 @@ services:
     volumes:
       - ./services/kibana/kibana.yml:/usr/share/kibana/config/kibana.yml:ro
     ports:
-      - "5601:5601"
+      - "${KIBANA_HTTP_PORT:-5601}:5601"
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:5601/api/status | grep -q '\"level\":\"available\"' || curl -fsS http://127.0.0.1:5601 >/dev/null || exit 1"]
       interval: 10s
@@ -674,8 +674,8 @@ services:
       - ./services/minio/certs:/root/.minio/certs
       - ./services/minio/entrypoint.sh:/usr/local/bin/minio-entrypoint.sh:ro
     ports:
-      - "9000:9000"
-      - "9001:9001"
+      - "${MINIO_API_PORT:-9000}:9000"
+      - "${MINIO_CONSOLE_PORT:-9001}:9001"
     healthcheck:
       test: ["CMD-SHELL", "curl -fsSk https://127.0.0.1:9000/minio/health/ready >/dev/null || wget -q -T 2 --no-check-certificate -O - https://127.0.0.1:9000/minio/health/ready >/dev/null || exit 1"]
       interval: 5s
@@ -702,7 +702,7 @@ services:
       - ./services/centrifugo/entrypoint.sh:/usr/local/bin/centrifugo-entrypoint.sh:ro
       - ./logs/centrifugo:/var/log/centrifugo
     ports:
-      - "8000:8000"
+      - "${CENTRIFUGO_HTTP_PORT:-8000}:8000"
     ulimits:
       nofile:
         soft: 65535
