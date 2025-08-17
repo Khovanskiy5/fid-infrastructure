@@ -28,7 +28,7 @@ services:
       retries: 5
       start_period: 5s
 
-# Веб приложение
+  # Веб приложение
   php-fpm:
     build:
       context: ./services/php/fpm
@@ -205,6 +205,8 @@ services:
       - ALLOW_EMPTY_PASSWORD=yes
       - REDIS_MASTER_HOST=redis-master
       - REDIS_MASTER_PORT_NUMBER=6379
+      - REDIS_SENTINEL_RESOLVE_HOSTNAMES=yes
+      - REDIS_SENTINEL_ANNOUNCE_HOSTNAMES=yes
     ports:
       - "${REDIS_SENTINEL1_PORT:-26379}:26379"
     volumes:
@@ -227,6 +229,8 @@ services:
       - ALLOW_EMPTY_PASSWORD=yes
       - REDIS_MASTER_HOST=redis-master
       - REDIS_MASTER_PORT_NUMBER=6379
+      - REDIS_SENTINEL_RESOLVE_HOSTNAMES=yes
+      - REDIS_SENTINEL_ANNOUNCE_HOSTNAMES=yes
     ports:
       - "${REDIS_SENTINEL2_PORT:-26380}:26379"
     volumes:
@@ -251,6 +255,8 @@ services:
       - ALLOW_EMPTY_PASSWORD=yes
       - REDIS_MASTER_HOST=redis-master
       - REDIS_MASTER_PORT_NUMBER=6379
+      - REDIS_SENTINEL_RESOLVE_HOSTNAMES=yes
+      - REDIS_SENTINEL_ANNOUNCE_HOSTNAMES=yes
     ports:
       - "${REDIS_SENTINEL3_PORT:-26381}:26379"
     volumes:
@@ -262,7 +268,7 @@ services:
       retries: 5
       start_period: 5s
 
-# Почтовый сервер
+  # Почтовый сервер
   mailhog:
     image: mailhog/mailhog:latest
     container_name: infra_mailhog
@@ -494,7 +500,7 @@ services:
       retries: 12
       start_period: 50s
 
-# Haproxy для PgBouncer и RabbitMQ
+  # Haproxy для PgBouncer и RabbitMQ
   haproxy:
     image: haproxy:1.5.18-alpine
     container_name: infra_haproxy
@@ -690,6 +696,8 @@ services:
     container_name: infra_centrifugo
     <<: *service_defaults
     depends_on:
+      redis-master:
+        condition: service_healthy
       redis-sentinel-1:
         condition: service_healthy
       redis-sentinel-2:
