@@ -88,7 +88,7 @@ services:
       - POSTGRESQL_LOG_HOSTNAME=true
       - POSTGRESQL_LOG_CONNECTIONS=true
     volumes:
-      - pg_master_data:/bitnami/postgresql
+      - postgres-master-data:/bitnami/postgresql
       - ./logs/postgres/master:/bitnami/postgresql/logs
     ports:
       - "${POSTGRES_MASTER_PORT:-5432}:5432"
@@ -118,7 +118,7 @@ services:
       - REPMGR_PORT_NUMBER=5432
       - REPMGR_PRIMARY_ROLE_WAIT_FOR_SYNC=on
     volumes:
-      - pg_replica_data:/bitnami/postgresql
+      - postgres-replica-data:/bitnami/postgresql
       - ./logs/postgres/replica:/bitnami/postgresql/logs
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -p 5432 -U $${POSTGRESQL_USERNAME:-postgres} || /opt/bitnami/postgresql/bin/pg_isready -h 127.0.0.1 -p 5432 -U $${POSTGRESQL_USERNAME:-postgres}"]
@@ -167,7 +167,7 @@ services:
     ports:
       - "${REDIS_MASTER_PORT:-6379}:6379"
     volumes:
-      - redis_master_data:/bitnami/redis/data
+      - redis-master-data:/bitnami/redis/data
       - ./logs/redis/master:/opt/bitnami/redis/logs
     healthcheck:
       test: ["CMD", "redis-cli", "-h", "127.0.0.1", "-p", "6379", "ping"]
@@ -191,7 +191,7 @@ services:
       redis-master:
         condition: service_healthy
     volumes:
-      - redis_slave_data:/bitnami/redis/data
+      - redis-slave-data:/bitnami/redis/data
       - ./logs/redis/slave:/bitnami/log/redis
     healthcheck:
       test: ["CMD", "redis-cli", "-h", "127.0.0.1", "-p", "6379", "ping"]
@@ -310,8 +310,8 @@ services:
       - ZOO_LOG4J_PROP=ERROR, ROLLINGFILE
       - ZOO_MY_ID=1
     volumes:
-      - ch_keeper_data:/data
-      - ch_keeper_datalog:/datalog
+      - zookeeper-1-data:/data
+      - zookeeper-1-log-data:/datalog
       - ./logs/clickhouse/zookeeper:/var/log/clickhouse-keeper
       - ./logs/clickhouse/zookeeper:/logs
       - ./services/zookeeper:/conf:ro
@@ -334,8 +334,8 @@ services:
       - ZOO_LOG4J_PROP=ERROR, ROLLINGFILE
       - ZOO_MY_ID=2
     volumes:
-      - ch_keeper_data2:/data
-      - ch_keeper_datalog2:/datalog
+      - zookeeper-2-data:/data
+      - zookeeper-2-log-data:/datalog
       - ./logs/clickhouse/zookeeper2:/var/log/clickhouse-keeper
       - ./logs/clickhouse/zookeeper2:/logs
       - ./services/zookeeper:/conf:ro
@@ -358,8 +358,8 @@ services:
       - ZOO_LOG4J_PROP=ERROR, ROLLINGFILE
       - ZOO_MY_ID=3
     volumes:
-      - ch_keeper_data3:/data
-      - ch_keeper_datalog3:/datalog
+      - zookeeper-3-data:/data
+      - zookeeper-3-log-data:/datalog
       - ./logs/clickhouse/zookeeper3:/var/log/clickhouse-keeper
       - ./logs/clickhouse/zookeeper3:/logs
       - ./services/zookeeper:/conf:ro
@@ -390,7 +390,7 @@ services:
         soft: 262144
         hard: 262144
     volumes:
-      - ch1_data:/var/lib/clickhouse
+      - clickhouse-1-data:/var/lib/clickhouse
       - ./logs/clickhouse/node1:/var/log/clickhouse-server
       - ./services/clickhouse/client/config.xml:/etc/clickhouse-client/config.d/config.xml:ro
       - ./services/clickhouse/server/config.xml:/etc/clickhouse-server/config.xml:ro
@@ -426,7 +426,7 @@ services:
         soft: 262144
         hard: 262144
     volumes:
-      - ch2_data:/var/lib/clickhouse
+      - clickhouse-2-data:/var/lib/clickhouse
       - ./logs/clickhouse/node2:/var/log/clickhouse-server
       - ./services/clickhouse/client/config.xml:/etc/clickhouse-client/config.d/config.xml:ro
       - ./services/clickhouse/server/config.xml:/etc/clickhouse-server/config.xml:ro
@@ -451,7 +451,7 @@ services:
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
       - RABBITMQ_LOGS=/var/log/rabbitmq/rabbit.log
     volumes:
-      - rabbit1_data:/var/lib/rabbitmq
+      - rabbitmq-1-data:/var/lib/rabbitmq
       - ./logs/rabbitmq/r1:/var/log/rabbitmq
       - ./services/rabbitmq/cluster-entrypoint.sh:/usr/local/bin/cluster-entrypoint.sh:ro
       - ./services/rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
@@ -477,7 +477,7 @@ services:
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
       - RABBITMQ_LOGS=/var/log/rabbitmq/rabbit.log
     volumes:
-      - rabbit2_data:/var/lib/rabbitmq
+      - rabbitmq-2-data:/var/lib/rabbitmq
       - ./logs/rabbitmq/r2:/var/log/rabbitmq
       - ./services/rabbitmq/cluster-entrypoint.sh:/usr/local/bin/cluster-entrypoint.sh:ro
       - ./services/rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
@@ -503,7 +503,7 @@ services:
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
       - RABBITMQ_LOGS=/var/log/rabbitmq/rabbit.log
     volumes:
-      - rabbit3_data:/var/lib/rabbitmq
+      - rabbitmq-3-data:/var/lib/rabbitmq
       - ./logs/rabbitmq/r3:/var/log/rabbitmq
       - ./services/rabbitmq/cluster-entrypoint.sh:/usr/local/bin/cluster-entrypoint.sh:ro
       - ./services/rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
@@ -564,7 +564,7 @@ services:
         soft: -1
         hard: -1
     volumes:
-      - es01_data:/usr/share/elasticsearch/data
+      - elasticsearch-1-data:/usr/share/elasticsearch/data
       - ./logs/elasticsearch/es01:/usr/share/elasticsearch/logs
       - ./services/elasticsearch/config/log4j2.properties:/usr/share/elasticsearch/config/log4j2.properties:ro
       - ./services/elasticsearch/hunspell/ru_RU:/usr/share/elasticsearch/config/hunspell/ru_RU:ro
@@ -596,7 +596,7 @@ services:
         soft: -1
         hard: -1
     volumes:
-      - es02_data:/usr/share/elasticsearch/data
+      - elasticsearch-1-data:/usr/share/elasticsearch/data
       - ./logs/elasticsearch/es02:/usr/share/elasticsearch/logs
       - ./services/elasticsearch/config/log4j2.properties:/usr/share/elasticsearch/config/log4j2.properties:ro
       - ./services/elasticsearch/hunspell/ru_RU:/usr/share/elasticsearch/config/hunspell/ru_RU:ro
@@ -626,7 +626,7 @@ services:
         soft: -1
         hard: -1
     volumes:
-      - es03_data:/usr/share/elasticsearch/data
+      - elasticsearch-3-data:/usr/share/elasticsearch/data
       - ./logs/elasticsearch/es03:/usr/share/elasticsearch/logs
       - ./services/elasticsearch/config/log4j2.properties:/usr/share/elasticsearch/config/log4j2.properties:ro
       - ./services/elasticsearch/hunspell/ru_RU:/usr/share/elasticsearch/config/hunspell/ru_RU:ro
@@ -699,7 +699,7 @@ services:
       - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
     entrypoint: ["/bin/sh", "/usr/local/bin/minio-entrypoint.sh"]
     volumes:
-      - minio_data:/data
+      - minio-data:/data
       - ./logs/minio:/var/log/minio
       - ./services/minio/certs:/root/.minio/certs
       - ./services/minio/entrypoint.sh:/usr/local/bin/minio-entrypoint.sh:ro
@@ -773,22 +773,22 @@ networks:
     name: infrastructure
 
 volumes:
-  pg_master_data:
-  pg_replica_data:
-  redis_master_data:
-  redis_slave_data:
-  ch_keeper_data:
-  ch_keeper_data2:
-  ch_keeper_data3:
-  ch_keeper_datalog:
-  ch_keeper_datalog2:
-  ch_keeper_datalog3:
-  ch1_data:
-  ch2_data:
-  rabbit1_data:
-  rabbit2_data:
-  rabbit3_data:
-  es01_data:
-  es02_data:
-  es03_data:
-  minio_data:
+  postgres-master-data:
+  postgres-replica-data:
+  redis-master-data:
+  redis-slave-data:
+  zookeeper-1-data:
+  zookeeper-2-data:
+  zookeeper-3-data:
+  zookeeper-1-log-data:
+  zookeeper-2-log-data:
+  zookeeper-3-log-data:
+  clickhouse-1-data:
+  clickhouse-2-data:
+  rabbitmq-1-data:
+  rabbitmq-2-data:
+  rabbitmq-3-data:
+  elasticsearch-1-data:
+  elasticsearch-2-data:
+  elasticsearch-3-data:
+  minio-data:
