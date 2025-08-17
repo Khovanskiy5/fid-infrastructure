@@ -253,8 +253,8 @@ psql -h postgres-master -U postgres -d postgres
 - Sentinel: 26379, 26380, 26381 (внутри: redis-sentinel-1..3:26379)
 
 ### RabbitMQ (3 ноды) + HAProxy
-- AMQP: localhost:5672 (внутри: rabbit-haproxy:5672)
-- UI: http://localhost:15672 (внутри: rabbit-haproxy:15672)
+- AMQP: localhost:5672 (внутри: haproxy:5672)
+- UI: http://localhost:15672 (внутри: haproxy:15672)
 - DSN: amqp://admin:adminpass@localhost:5672/
 
 ### ClickHouse (2 ноды + Keeper)
