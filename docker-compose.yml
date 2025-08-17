@@ -596,7 +596,7 @@ services:
         soft: -1
         hard: -1
     volumes:
-      - elasticsearch-1-data:/usr/share/elasticsearch/data
+      - elasticsearch-2-data:/usr/share/elasticsearch/data
       - ./logs/elasticsearch/es02:/usr/share/elasticsearch/logs
       - ./services/elasticsearch/config/log4j2.properties:/usr/share/elasticsearch/config/log4j2.properties:ro
       - ./services/elasticsearch/hunspell/ru_RU:/usr/share/elasticsearch/config/hunspell/ru_RU:ro
