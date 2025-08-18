@@ -79,7 +79,7 @@ try_join_cluster() {
 
 main() {
   HOSTNAME=$(hostname -s 2>/dev/null || hostname)
-  SEED_HOST=${RABBITMQ_CLUSTER_WITH:-rabbit-1}
+  SEED_HOST=${RABBITMQ_CLUSTER_WITH:-rabbitmq-1}
 
   # Explicit nodename for clarity (RabbitMQ defaults to rabbit@<hostname>)
   export RABBITMQ_NODENAME="rabbit@${HOSTNAME}"
