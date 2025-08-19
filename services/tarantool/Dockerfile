@@ -1,8 +1,8 @@
 FROM tarantool/tarantool:2.10.5-centos7
 
 # Установка репозитория Tarantool -- Требуется для сборки зависимостей cartridge и так далее
-COPY installer.sh /tmp/installer.sh
-RUN VER=2 bash /tmp/installer.sh && rm -f /tmp/installer.sh
+COPY TarantoolRepoInstaller.sh /tmp/TarantoolRepoInstaller.sh
+RUN VER=2 bash /tmp/TarantoolRepoInstaller.sh && rm -f /tmp/TarantoolRepoInstaller.sh
 
 # Базовые репозитории и cartridge-cli
 RUN set -eux && \
@@ -41,3 +41,14 @@ WORKDIR /opt/tarantool/voting/
 
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
+
+# Манифест luasodium для tarantoolctl
+# Используется tarantoolctl rocks при сборке cartridge build
+# Все пакеты собираются в корне приложения voting/.rocks/
+COPY ./luasodium-2.4.0-1.src.rock /opt/.rocks/
+RUN luarocks-admin make_manifest /opt/.rocks/
+RUN set -eux && \
+    mkdir -p /etc/tarantool/rocks && \
+    printf 'rocks_servers = { "/opt/.rocks/", "https://luarocks.org" }\n' \
+      > /etc/tarantool/rocks/config-5.1.lua
+

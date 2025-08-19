@@ -12,6 +12,7 @@ dependencies = {
     'cartridge-cli-extensions == 1.1.2-1',
     'cartridge-metrics-role == 0.1.1-1',
     'cartridge-extensions == 1.1.0-1',
+    'luasodium == 2.4.0-1'
 }
 build = {
     type = 'none';
