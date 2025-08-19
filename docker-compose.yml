@@ -707,7 +707,7 @@ services:
       - "${MINIO_API_PORT:-9000}:9000"
       - "${MINIO_CONSOLE_PORT:-9001}:9001"
     healthcheck:
-      test: ["CMD-SHELL", "curl -fsSk https://127.0.0.1:9000/minio/health/ready >/dev/null || wget -q -T 2 --no-check-certificate -O - https://127.0.0.1:9000/minio/health/ready >/dev/null || exit 1"]
+      test: ["CMD-SHELL", "curl -fsSk -m 3 https://127.0.0.1:9000/minio/health/ready >/dev/null || curl -fsS -m 3 http://127.0.0.1:9000/minio/health/ready >/dev/null || wget -q -T 3 --no-check-certificate -O - https://127.0.0.1:9000/minio/health/ready >/dev/null || wget -q -T 3 -O - http://127.0.0.1:9000/minio/health/ready >/dev/null || exit 1"]
       interval: 5s
       timeout: 3s
       retries: 6
@@ -767,6 +767,43 @@ services:
       retries: 3
       start_period: 10s
 
+  tarantool:
+    build:
+      context: ./services/tarantool
+      dockerfile: Dockerfile
+    platform: linux/amd64
+    container_name: tarantool
+    hostname: tarantool
+    <<: *service_defaults
+    entrypoint: ["/usr/local/bin/entrypoint.sh"]
+    environment:
+      LANG: C
+      LC_ALL: C
+      DB_USER: "voting_user"
+      DB_PASSWORD: "voting_password"
+      CENTRIFUGO_URL: http://centrifugo:8000/api
+      CENTRIFUGO_AUTH: "apikey admin_secret_key"
+      VOTING_DISABLE_BATCH: "false"
+    volumes:
+      - ./logs/tarantool:/var/log/tarantool/
+      - ./services/tarantool:/opt/tarantool/
+      - tarantool-data:/var/lib/tarantool
+    ports:
+      - '4401:4401'
+      - '3302:3302'
+      - '3303:3303'
+      - '3304:3304'
+      - '8081:8081'
+      - '8082:8082'
+      - '8083:8083'
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z -w 2 127.0.0.1 8081 || wget -q -T 2 -O - http://127.0.0.1:8081/ >/dev/null || curl -fsS http://127.0.0.1:8081/ >/dev/null"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
 networks:
   infrastructure:
     driver: bridge
@@ -792,3 +829,4 @@ volumes:
   elasticsearch-2-data:
   elasticsearch-3-data:
   minio-data:
+  tarantool-data:

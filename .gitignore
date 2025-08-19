@@ -72,3 +72,8 @@ node_modules/
 # Docker Compose local overrides
 ############################
 docker-compose.override.yml
+
+############################
+# Tarantool / LuaRocks
+############################
+.rocks/

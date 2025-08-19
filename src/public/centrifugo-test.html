@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Centrifugo тест подписки (без Playground)</title>
+  <style>
+    body { font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 20px; }
+    .row { margin-bottom: 12px; }
+    label { display: inline-block; min-width: 140px; }
+    input[type=text] { width: 320px; padding: 6px 8px; }
+    button { padding: 6px 12px; }
+    #log { white-space: pre-wrap; border: 1px solid #ddd; padding: 10px; height: 280px; overflow: auto; background: #fafafa; }
+    .ok { color: #0a8218; }
+    .err { color: #b30000; }
+  </style>
+  <script src="https://unpkg.com/centrifuge@4.1.0/dist/centrifuge.js"></script>
+</head>
+<body>
+  <h1>Тесты Centrifugo</h1>
+  <p>
+    Эта страница подключается к Centrifugo как анонимный клиент (client_insecure=true) и позволяет
+    подписаться на канал и смотреть доставку публикаций.
+  </p>
+
+  <div class="row">
+    <label>WebSocket URL:</label>
+    <input id="wsUrl" type="text" value="ws://localhost:8000/connection/websocket" />
+    <button id="btnConnect">Подключиться</button>
+    <span id="connState"></span>
+  </div>
+
+  <div class="row">
+    <label>Канал:</label>
+    <input id="channel" type="text" placeholder="например, test или 123-45" />
+    <button id="btnSub" disabled>Подписаться</button>
+  </div>
+
+  <div class="row">
+    <button id="btnUnsub" disabled>Отписаться</button>
+    <button id="btnDisconnect" disabled>Отключиться</button>
+  </div>
+
+  <h3>Логи</h3>
+  <div id="log"></div>
+
+  <script>
+    const logEl = document.getElementById('log');
+    const connStateEl = document.getElementById('connState');
+    const wsUrlEl = document.getElementById('wsUrl');
+    const channelEl = document.getElementById('channel');
+    const btnConnect = document.getElementById('btnConnect');
+    const btnDisconnect = document.getElementById('btnDisconnect');
+    const btnSub = document.getElementById('btnSub');
+    const btnUnsub = document.getElementById('btnUnsub');
+
+    let centrifuge = null;
+    let sub = null;
+
+    function log(msg, cls) {
+      const ts = new Date().toISOString().replace('T', ' ').replace('Z','');
+      const line = document.createElement('div');
+      if (cls) line.className = cls;
+      line.textContent = `[${ts}] ${msg}`;
+      logEl.appendChild(line);
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    function setConnectedUI(connected) {
+      btnConnect.disabled = connected;
+      btnDisconnect.disabled = !connected;
+      btnSub.disabled = !connected;
+      if (!connected) btnUnsub.disabled = true;
+      connStateEl.textContent = connected ? 'подключено' : 'не подключено';
+      connStateEl.className = connected ? 'ok' : 'err';
+    }
+
+    btnConnect.addEventListener('click', () => {
+      const url = wsUrlEl.value.trim();
+      if (!url) return;
+
+      try {
+        centrifuge = new Centrifuge(url, { debug: true });
+      } catch (e) {
+        log(`Ошибка создания клиента: ${e}`, 'err');
+        return;
+      }
+
+      centrifuge.on('connecting', ctx => {
+        setConnectedUI(false);
+        log(`Подключение... попытка ${ctx.attempt} (${ctx.code || ''} ${ctx.reason || ''})`);
+      });
+      centrifuge.on('connected', ctx => {
+        setConnectedUI(true);
+        log(`Подключено, client: ${ctx.client}, версия: ${ctx.version}`, 'ok');
+      });
+      centrifuge.on('disconnected', ctx => {
+        setConnectedUI(false);
+        log(`Отключено (${ctx.code} ${ctx.reason})`);
+      });
+      centrifuge.on('error', err => {
+        log(`Ошибка клиента: ${JSON.stringify(err)}`, 'err');
+      });
+
+      centrifuge.connect();
+    });
+
+    btnDisconnect.addEventListener('click', () => {
+      if (centrifuge) {
+        centrifuge.disconnect();
+      }
+    });
+
+    btnSub.addEventListener('click', () => {
+      if (!centrifuge) return;
+      const channel = channelEl.value.trim();
+      if (!channel) return;
+
+      if (sub) {
+        log('Уже есть активная подписка, сначала отписываюсь...');
+        try { sub.unsubscribe(); } catch (e) {}
+        sub = null;
+      }
+
+      sub = centrifuge.newSubscription(channel);
+
+      sub.on('subscribing', ctx => {
+        btnUnsub.disabled = true;
+        log(`Подписка в процессе (${ctx.code || ''} ${ctx.reason || ''})`);
+      });
+      sub.on('subscribed', ctx => {
+        btnUnsub.disabled = false;
+        log(`Подписан на ${channel}. Publications recoverable=${ctx.recoverable}, epoch=${ctx.epoch || ''}`, 'ok');
+      });
+      sub.on('unsubscribed', ctx => {
+        btnUnsub.disabled = true;
+        log(`Отписан от ${channel} (${ctx.code || ''} ${ctx.reason || ''})`);
+      });
+      sub.on('publication', ctx => {
+        log(`Сообщение в ${channel}: ${JSON.stringify(ctx.data)}`);
+      });
+      sub.on('error', err => {
+        log(`Ошибка подписки: ${JSON.stringify(err)}`, 'err');
+      });
+
+      sub.subscribe();
+    });
+
+    btnUnsub.addEventListener('click', () => {
+      if (sub) {
+        sub.unsubscribe();
+        sub = null;
+      }
+    });
+  </script>
+
+  <hr>
+  <p>
+    Подсказка: откройте терминал и выполните publish через HTTP API Centrifugo:
+  </p>
+  <pre>
+curl -X POST http://localhost:8000/api \
+  -H 'Content-Type: application/json' \
+  -H 'Authorization: apikey admin_secret_key' \
+  -d '{
+        "method": "publish",
+        "params": {"channel": "test", "data": {"hello": "world"}}
+      }'
+  </pre>
+</body>
+</html>

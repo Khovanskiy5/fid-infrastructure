@@ -1,0 +1,16 @@
+---
+voting-stateboard:
+  listen: 0.0.0.0:4401
+  password: passwd
+
+voting.storage-replica-1:
+  advertise_uri: 0.0.0.0:3302
+  http_port: 8081
+
+voting.storage-replica-2:
+  advertise_uri: 0.0.0.0:3303
+  http_port: 8082
+
+voting.storage-replica-3:
+  advertise_uri: 0.0.0.0:3304
+  http_port: 8083

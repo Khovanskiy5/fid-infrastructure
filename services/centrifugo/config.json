@@ -11,6 +11,7 @@
   "history_recover": true,
   "history_size": 1,
   "history_ttl": "8760h",
+  "api_key": "admin_secret_key",
   "log_level": "error",
   "namespaces": [],
   "redis_db": 1,

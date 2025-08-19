@@ -22,6 +22,7 @@
 - [Устранение неполадок](#устранение-неполадок)
 - [Приложение A: Elasticsearch + Hunspell тесты](https://github.com/Khovanskiy5/fid-infrastructure/blob/main/README_Elasticsearch.md)
 - [Приложение Б: Мониторинг Elasticsearch](https://github.com/Khovanskiy5/fid-infrastructure/blob/main/README_metricbeat.md)
+- [Приложение В: Tarantool (Cartridge)](https://github.com/Khovanskiy5/fid-infrastructure/blob/main/README_Tarantool.md)
 
 
 ## Требования
@@ -110,6 +111,7 @@ make status
 - Kibana: 5601 (UI)
 - MinIO: 9000 (S3 API), 9001 (Console)
 - Centrifugo: 8000 (WS/API)
+- Tarantool: 4401 (stateboard), 3302-3304 (TCP/iproto), 8081-8083 (HTTP)
 
 DNS‑имена внутри сети Docker (bridge): postgres-master, postgres-replica, pgbouncer, haproxy, redis-master, redis-slave, sentinel-1..3, rabbit-1..3, clickhouse-1/2, elasticsearch-1..3, kibana, minio, centrifugo, php-fpm, nginx и др.
 
@@ -195,6 +197,12 @@ MinIO:
 Centrifugo:
 - Admin UI: http://localhost:8000
 - WebSocket: ws://localhost:8000/connection/websocket
+
+Tarantool:
+- HTTP ready: curl -fsS http://localhost:8081/ready
+- State: curl -fsS http://localhost:8081/state
+- Metrics: curl -fsS http://localhost:8081/metrics | head -n 10
+- TCP (iproto): nc -zv 127.0.0.1 3302
 
 
 ## Подключение из контейнеров и внешних проектов
@@ -287,9 +295,24 @@ Native: jdbc:ch://127.0.0.1:9004/default?protocol=native&ssl=false&user=admin&pa
 ### MailHog
 - UI: http://localhost:8025 (также http://localhost/mailhog/ через Nginx)
 
+### Tarantool
+- Снаружи: iproto 127.0.0.1:3302 (также 3303/3304), HTTP: http://localhost:8081 (также 8082/8083), stateboard: 4401
+- Внутри Docker: tarantool:3302
+- Примеры:
+```
+# HTTP готовность/состояние/метрики
+curl -fsS http://localhost:8081/ready
+curl -fsS http://localhost:8081/state
+curl -fsS http://localhost:8081/metrics | head -n 10
+
+# iproto TCP
+nc -zv 127.0.0.1 3302
+```
+- Подробнее: см. Приложение В (README_Tarantool.md)
+
 
 ## Устранение неполадок
-- Порты заняты: освободите 80/443/5432/6379/9200/9000/9001/9004/8000
+- Порты заняты: освободите 80/443/5432/6379/9200/9000/9001/9004/8000, 4401, 3302-3304, 8081-8083
 - Сертификаты: самоподписанные — используйте -k в curl или добавьте в доверенные
 - Healthcheck не становится healthy: проверьте логи `make logs-tail SERVICE=<имя>`
 - DNS внутри сети: проверьте `docker network inspect infrastructure` и `ping postgres-master` из контейнера

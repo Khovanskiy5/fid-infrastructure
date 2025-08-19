@@ -1,0 +1,13 @@
+storage:
+  instances:
+    - storage-replica-1
+    - storage-replica-2
+    - storage-replica-3
+  roles:
+    - failover-coordinator
+    - vshard-router
+    - vshard-storage
+    - app.roles.voting
+  weight: 1
+  all_rw: false
+  vshard_group: default
