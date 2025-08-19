@@ -77,3 +77,4 @@ docker-compose.override.yml
 # Tarantool / LuaRocks
 ############################
 .rocks/
+services/tarantool/voting/*.rpm

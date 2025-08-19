@@ -32,8 +32,7 @@ RUN set -eux && \
     ln -sf /usr/local/bin/luarocks /usr/bin/luarocks && \
     ln -sf /usr/local/bin/luarocks-admin /usr/bin/luarocks-admin && \
     rm -rf /tmp/luarocks-3.12.2 /tmp/luarocks-3.12.2.tar.gz && \
-    mkdir -p /usr/local/etc/luarocks && \
-    printf 'rocks_servers = { "https://rocks.tarantool.org", "https://luarocks.org" }\nrocks_provided = { tarantool = "2.10.5" }\n' > /usr/local/etc/luarocks/config-5.1.lua
+    mkdir -p /usr/local/etc/luarocks
 
 RUN yum install netcat -y
 
@@ -49,6 +48,6 @@ COPY ./luasodium-2.4.0-1.src.rock /opt/.rocks/
 RUN luarocks-admin make_manifest /opt/.rocks/
 RUN set -eux && \
     mkdir -p /etc/tarantool/rocks && \
-    printf 'rocks_servers = { "/opt/.rocks/", "https://luarocks.org" }\n' \
+    printf 'rocks_servers = { "/opt/.rocks/", "https://rocks.tarantool.org" }\n' \
       > /etc/tarantool/rocks/config-5.1.lua
 
