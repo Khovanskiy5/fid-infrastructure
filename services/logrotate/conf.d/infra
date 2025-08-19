@@ -109,3 +109,19 @@
   notifempty
   copytruncate
 }
+
+/var/log/infra/pgbouncer/*.log {
+  daily
+  rotate 7
+  missingok
+  notifempty
+  copytruncate
+}
+
+/var/log/infra/tarantool/*.log {
+  daily
+  rotate 7
+  missingok
+  notifempty
+  copytruncate
+}
