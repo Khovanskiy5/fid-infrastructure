@@ -568,7 +568,6 @@ services:
       - ./logs/elasticsearch/es01:/usr/share/elasticsearch/logs
       - ./services/elasticsearch/config/log4j2.properties:/usr/share/elasticsearch/config/log4j2.properties:ro
       - ./services/elasticsearch/hunspell/ru_RU:/usr/share/elasticsearch/config/hunspell/ru_RU:ro
-      - ./services/elasticsearch/hunspell/ru_RU:/etc/elasticsearch/hunspell/ru_RU:ro
     ports:
       - "${ELASTICSEARCH_HTTP_PORT:-9200}:9200"
     healthcheck:
@@ -600,7 +599,6 @@ services:
       - ./logs/elasticsearch/es02:/usr/share/elasticsearch/logs
       - ./services/elasticsearch/config/log4j2.properties:/usr/share/elasticsearch/config/log4j2.properties:ro
       - ./services/elasticsearch/hunspell/ru_RU:/usr/share/elasticsearch/config/hunspell/ru_RU:ro
-      - ./services/elasticsearch/hunspell/ru_RU:/etc/elasticsearch/hunspell/ru_RU:ro
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://localhost:9200 >/dev/null || wget -q -T 2 -O - http://localhost:9200 >/dev/null || exit 1"]
       interval: 5s
