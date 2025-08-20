@@ -56,6 +56,7 @@ make status
 - Kibana: http://localhost:5601
 - MinIO Console: https://localhost:9001 (minioadmin/minioadminpass)
 - Centrifugo: http://localhost:8000
+- Tarantool (Cartridge UI): http://localhost:8081
 
 Полезно: make help — список всех целей с описаниями.
 

@@ -296,7 +296,6 @@ end
 -- Корректная остановка всех фоновых задач
 local function stop()
     state.stop = true
-    if state.promoter_fiber then pcall(function() state.promoter_fiber:cancel() end) end
     if state.publish_fiber then pcall(function() state.publish_fiber:cancel() end) end
     return true
 end
