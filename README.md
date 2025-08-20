@@ -198,6 +198,7 @@ MinIO:
 Centrifugo:
 - Admin UI: http://localhost:8000
 - WebSocket: ws://localhost:8000/connection/websocket
+- Centrifugo API: http://localhost:8000/api
 
 Tarantool:
 - HTTP ready: curl -fsS http://localhost:8081/ready
