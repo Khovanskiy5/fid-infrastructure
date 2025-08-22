@@ -547,7 +547,7 @@ services:
 
   # Elasticsearch кластер (3 ноды)
   elasticsearch-1:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.0
+    image: elasticsearch:7.17.0
     container_name: elasticsearch-1
     hostname: elasticsearch-1
     <<: *service_defaults
@@ -578,7 +578,7 @@ services:
       start_period: 50s
 
   elasticsearch-2:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.0
+    image: elasticsearch:7.17.0
     container_name: elasticsearch-2
     hostname: elasticsearch-2
     <<: *service_defaults
@@ -607,7 +607,7 @@ services:
       start_period: 50s
 
   elasticsearch-3:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.0
+    image: elasticsearch:7.17.0
     container_name: elasticsearch-3
     hostname: elasticsearch-3
     <<: *service_defaults
@@ -636,7 +636,7 @@ services:
       start_period: 50s
 
   kibana:
-    image: docker.elastic.co/kibana/kibana:7.17.0
+    image: elastic/kibana:7.17.0
     container_name: kibana
     hostname: kibana
     <<: *service_defaults
@@ -662,7 +662,7 @@ services:
       start_period: 40s
 
   metricbeat:
-    image: docker.elastic.co/beats/metricbeat:7.17.0
+    image: elastic/metricbeat:7.17.0
     container_name: metricbeat
     hostname: metricbeat
     <<: *service_defaults
