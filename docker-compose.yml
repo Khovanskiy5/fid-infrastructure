@@ -781,7 +781,6 @@ services:
       DB_PASSWORD: "voting_password"
       CENTRIFUGO_URL: http://centrifugo:8000/api
       CENTRIFUGO_AUTH: "apikey admin_secret_key"
-      VOTING_DISABLE_BATCH: "false"
     volumes:
       - ./logs/tarantool:/var/log/tarantool/
       - ./services/tarantool:/opt/tarantool/

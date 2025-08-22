@@ -103,11 +103,22 @@ local function extract_primary_key(space, tuple)
     return key
 end
 
+-- Построение имени канала публикации по entity/decision
+local function build_channel(entity, decision)
+    local dnum = tonumber(decision)
+    if dnum and dnum ~= 0 then
+        return tostring(entity) .. '-' .. tostring(dnum)
+    else
+        return tostring(entity)
+    end
+end
+
 -- Публикация в centrifugo счетчиков
 local function publish_batch(client, url, token, commands)
-    local successes = {}
+    -- Карта успешных публикаций по индексу команды
+    local success_by_index = {}
 
-    local opts = {
+    local request_options = {
         headers = { ['Content-Type'] = 'application/json', Authorization = token },
         timeout = http_timeout,
         connect_timeout = http_connect_to,
@@ -117,38 +128,42 @@ local function publish_batch(client, url, token, commands)
     }
 
     do
-        local any_ok = false
+        local has_success = false
         for i = 1, #commands do
-            local single_cmd = commands[i]
-            local single_body
-            local ok_enc, enc_err = pcall(function()
-                single_body = json.encode({ method = single_cmd.method, params = single_cmd.params })
+            local command = commands[i]
+            local request_body
+            local ok_encode, encode_err = pcall(function()
+                request_body = json.encode({ method = command.method, params = command.params })
             end)
-            if not ok_enc then
-                log.error('JSON encode - ошибка: %s', tostring(enc_err))
+            if not ok_encode then
+                log.error('JSON encode - ошибка: %s', tostring(encode_err))
             else
-                local r2
-                local ok2, err2 = pcall(function()
-                    r2 = http_post(client, url, single_body, opts)
+                local response
+                local ok_http, http_err = pcall(function()
+                    response = http_post(client, url, request_body, request_options)
                 end)
-                if ok2 and r2 and r2.status == 200 then
-                    local dec_ok, resp2 = pcall(function() return json.decode(r2.body or '') end)
-                    if dec_ok and resp2 and resp2.error == nil then
-                        successes[i] = true
-                        any_ok = true
+                if ok_http and response and response.status == 200 then
+                    local ok_decode, decoded_body = pcall(function() return json.decode(response.body or '') end)
+                    if ok_decode and decoded_body and decoded_body.error == nil then
+                        success_by_index[i] = true
+                        has_success = true
                     else
-                        local body_prev = r2 and r2.body and tostring(r2.body):sub(1,256) or ''
-                        log.error('Publish: ответ с ошибкой/непонятный: %s', body_prev)
+                        local response_preview = response and response.body and tostring(response.body):sub(1,256) or ''
+                        log.error('Publish: ответ с ошибкой/непонятный: %s', response_preview)
                     end
                 else
-                    local st = r2 and r2.status or 'nil'
-                    local body_prev = r2 and r2.body and tostring(r2.body):sub(1,256) or ''
-                    log.error('Publish неуспешен: status=%s, req_preview=%s ..., resp_preview=%s ...', tostring(st), tostring(single_body):sub(1, 256), body_prev)
+                    local status_code = response and response.status or 'nil'
+                    local response_preview = response and response.body and tostring(response.body):sub(1,256) or ''
+                    if not ok_http then
+                        log.error('Publish неуспешен: http_err=%s, req_preview=%s ..., resp_preview=%s ...', tostring(http_err), tostring(request_body):sub(1, 256), response_preview)
+                    else
+                        log.error('Publish неуспешен: status=%s, req_preview=%s ..., resp_preview=%s ...', tostring(status_code), tostring(request_body):sub(1, 256), response_preview)
+                    end
                 end
             end
         end
-        if any_ok then
-            return successes
+        if has_success then
+            return success_by_index
         else
             return nil, 'Publish: Публикация не удалась'
         end
@@ -193,14 +208,8 @@ local function publish_worker()
                         if entity == nil or decision == nil or hash == nil then
                             log.warn('VOTES_STAT: пропуск записи (entity/decision/hash отсутствуют): entity=%s, decision=%s, hash=%s', tostring(entity), tostring(decision), tostring(hash))
                         else
-                            -- Формируем канал: entity[-decision], 0 означает без суффикса
-                            local dnum = tonumber(decision) or 0
-                            local channel
-                            if dnum ~= 0 then
-                                channel = tostring(entity) .. '-' .. tostring(dnum)
-                            else
-                                channel = tostring(entity)
-                            end
+                            -- Формируем имя канала по entity/decision
+                            local channel = build_channel(entity, decision)
 
                             -- Отправляем объект с ключом bch_hash_number
                             local data = { bch_hash_number = tostring(hash) }
